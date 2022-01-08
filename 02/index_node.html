@@ -74,7 +74,7 @@
                 pendingTasks() {
                     return this.tasks.filter(x => x.status === 0 
                             && (this.search === null 
-                            || x.name.toLowerCase().search(this.search.toLowerCase()) != -1));
+                            || x.task.toLowerCase().search(this.search.toLowerCase()) != -1));
                 },
                 completedTasks() {
                     return this.tasks.filter(x => x.status === 1);

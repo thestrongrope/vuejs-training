@@ -1,9 +1,8 @@
-const express = require('express');
-const mysql = require('mysql2');
-const bodyParser = require("body-parser");
-const cors = require('cors')
+import express, { json } from 'express';
+import { createConnection } from 'mysql2';
+import cors from 'cors';
 
-const connection = mysql.createConnection({
+const connection = createConnection({
     host: 'localhost',
     user: 'root',
     password: 'Mahdi@786',
@@ -11,8 +10,7 @@ const connection = mysql.createConnection({
 });
 
 var app = express();
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(json());
 app.use(cors());
 
 // fetch all tasks
