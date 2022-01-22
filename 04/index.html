@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Learn Vue</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        Todo
+      </h1>
+
+      <div id="summary" class="card">
+        <header class="card-header">
+          <p class="card-header-title">
+            Summary
+          </p>
+        </header>
+        <div class="card-content">
+          <div class="content">
+            Total Pending Tasks: {{ total }}
+          </div>
+        </div>
+      </div>
+
+      <div>
+      </div>
+
+      <div id="app">
+        <div class="card mt-1">
+          <header class="card-header">
+            <p class="card-header-title">
+              Add New Task
+            </p>
+          </header>
+          <div class="card-content">
+            <input type="text" class="input" autofocus v-model="task.task" v-on:keypress.enter.prevent="addTask" />
+          </div>
+        </div>
+
+        <article class="panel is-info">
+          <p class="panel-heading">
+            Pending Tasks <span class="mx-1 tag">{{ tasks.length }}</span>
+          </p>
+          <div class="panel-block">
+            <p class="control has-icons-left">
+              <input v-model="search" class="input is-primary" type="search" placeholder="Search">
+            </p>
+          </div>
+
+          <div v-if="tasks.length" class="panel-block" v-for="t in tasks" :key="t.id">
+            Task: {{ t.task }}
+            <button class="mx-2 button is-info" @click="completeTask(t.id)">Complete</button>
+          </div>
+          <div v-else class="panel-block">
+            <span v-if="search">No items found</span>
+            <span v-else>No pending items</span>
+          </div>
+        </article>
+
+        <article v-if="completedTasks.length" class="panel is-info">
+          <p class="panel-heading">
+            Completed Tasks <span class="mx-2 tag is-info">{{ completedTasks.length }}</span>
+          </p>
+          <div class="panel-block" v-for="t in completedTasks" :key="t.id">
+            Task: {{ t.task }}
+            <button class="mx-2 button is-danger" @click="deleteTask(t.id)">Delete</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js"></script>
+  <script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3.2.28/dist/vue.esm-browser.js'
+    import Summary from './summary.js'
+    import App from './app.js'
+    createApp(App).mount('#app')
+    createApp(Summary).mount('#summary')
+  </script>
+  </body>
+</html>

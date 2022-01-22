@@ -16,11 +16,11 @@
   </head>
   <body>
     <div class="container">
-        <script>
-            var d = new Date(0, 0, 0);
-            document.write(d);
-            document.write("Hello");
-        </script>
+
+        <div id="summary" v-cloak>
+            Total Tasks: {{ count() }}
+        </div>
+
         <div id="app" v-cloak>
             <h1>ToDo List</h1>
             <div class="card">
@@ -54,18 +54,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.26/vue.global.prod.min.js" 
     integrity="sha512-yY2w8QVShzoLAachKPHtZRjXZeQOi9rQ2dYEYLf+lelt+TvZVOm/AlqVX6xFrjiy6wKDxgqvT1RL3BjxPdq/UA==" 
     crossorigin="anonymous"></script>
-    <script>
-        const Settings = {
-            serviceUrl: "api.php?action="
-        }
+    <script type="module">
+        import TaskService from './taskservice.js';
 
-        const TaskStore = {
-            async getAll() {
-                var tasks = await fetch(Settings.serviceUrl +  'getAll')
-                            .then(response => response.json())
-                            .then(tasks => tasks);
-                return tasks;
-            }
+        const Summary = {
+            methods: {
+                count() {
+                    return TaskService.tasks.length
+                }
+            },
         }
 
         const App = {
@@ -84,38 +81,34 @@
             },
             methods: {
                 async fetchTasks() {
-                    this.Tasks = await TaskStore.getAll();
+                    this.tasks = await TaskService.fetch();
                 },
                 pendingTasks() {
-                    return this.tasks.filter(x => x.status === "0" 
+                    return this.tasks.filter(x => x.status === 0 
                             && (this.search === null 
-                            || x.name.toLowerCase().search(this.search.toLowerCase()) != -1));
+                            || x.task.toLowerCase().search(this.search.toLowerCase()) != -1));
                 },
                 completedTasks() {
-                    return this.tasks.filter(x => x.status === "1");
+                    return this.tasks.filter(x => x.status === 1);
                 },
-                addTask() {
+                async addTask() {
                     if(this.task) {
-                        fetch('api.php?action=add',  {
-                            method: 'POST', // or 'PUT'
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(this.task),
-                        })
-                        .then(response => response.json())
-                        .then(task => {
-                            this.tasks.push(task);
-                            this.task = {
-                                id: null,
-                                task: null,
-                            }
+                        const taskId = await TaskService.add(this.task);
+                        this.task.id = taskId;
+                        this.tasks.push({
+                            id: this.task.id,
+                            task: this.task.task,
+                            status: 0,
                         });
+                        this.task = {
+                            id: null,
+                            task: null,
+                        }
                     }
                 },
                 completeTask(task) {
-                    fetch('api.php?action=complete',  {
-                        method: 'POST', // or 'PUT'
+                    fetch(SERVER_URL + '/complete',  {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -123,12 +116,12 @@
                     })
                     .then(response => response.json())
                     .then(() => {
-                        task.status = "1";
+                        task.status = 1;
                     });
                 },
                 deleteTask(task) {
-                    fetch('api.php?action=delete',  {
-                        method: 'POST', // or 'PUT'
+                    fetch(SERVER_URL,  {
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -147,6 +140,7 @@
         // commonhandler for all failures
 
         Vue.createApp(App).mount("#app");
+        Vue.createApp(Summary).mount("#summary");
     </script>
   </body>
 </html>
